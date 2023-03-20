@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Upload Files</title>
+  <style>
+    body {
+      background-color: #f2f2f2;
+      font-family: Arial, sans-serif;
+    }
+
+    form {
+      background-color: #fff;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 100px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom:  100px;
+    }
+
+    label {
+      display: block;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    input[type=file] {
+      display: block;
+      margin-bottom: 30px;
+    }
+
+    input[type=submit] {
+      background-color: #4CAF50;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <form method="post" action="/upload" enctype="multipart/form-data">
+    <h1>Upload Brakeman Scan Report Files</h1>
+    <label for="file1">Select File 1 (Before Deployment):</label>
+    <input type="file" name="file1" id="file1">
+    <label for="file2">Select File 2 (After Deployment):</label>
+    <input type="file" name="file2" id="file2">
+    <input type="submit" value="Upload">
+  </form>
+</body>
+
+</html>
