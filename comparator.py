@@ -601,16 +601,17 @@ class comparator:
                 "tr", role="row", class_={"odd", "even"}, recursive=False)
 
         old_scan_warnings = []
-        for element in old_scan:
-            x = copy(element)
-            for child in x.find_all("td", class_="context_line sorting_1"):
-                child.clear()
-            error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
-            line = re.findall("nearline\d*", error_msg)
-            if line:
-                error_msg = error_msg.replace(line[0], "")
-            if error_msg:
-                old_scan_warnings.append(error_msg)
+        if old:
+            for element in old_scan:
+                x = copy(element)
+                for child in x.find_all("td", class_="context_line sorting_1"):
+                    child.clear()
+                error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
+                line = re.findall("nearline\d*", error_msg)
+                if line:
+                    error_msg = error_msg.replace(line[0], "")
+                if error_msg:
+                    old_scan_warnings.append(error_msg)
         for element in new_scan:
             x = copy(element)
             for child in x.find_all("td", class_="context_line sorting_1"):

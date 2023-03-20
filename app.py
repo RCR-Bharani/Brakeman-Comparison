@@ -24,7 +24,7 @@ def upload_file():
     file2.save(os.path.join(app.config['UPLOAD_FOLDER'], filename2))
 
     html_template_soup = comparator(file1=os.path.join(app.config['UPLOAD_FOLDER'], filename1), file2=os.path.join(app.config['UPLOAD_FOLDER'], filename2))
-    template_folder = "/home/rently/PycharmProjects/Brakeman Comparison/templates/"
+    template_folder = "/home/rently/PycharmProjects/Brakeman-Comparison/templates/"
     file_name = "Brakeman_comparison-" + datetime.datetime.now().strftime("%Y%m%d%H%M") + ".html"
     file_path = template_folder + file_name
     head, html_template_soup = html_template_soup.call_stack()
