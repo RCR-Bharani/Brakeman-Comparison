@@ -2,9 +2,19 @@ import datetime
 import re
 from copy import copy
 from bs4 import BeautifulSoup
+from difflib import SequenceMatcher
 
 
-head = """  <!DOCTYPE HTML SYSTEM>
+class comparator:
+    def __init__(self, file1, file2):
+        with open(file1, "r") as old_scan:
+            body = old_scan.read()
+            self.old_scan_soup = BeautifulSoup(body, 'html.parser')
+
+        with open(file2, "r") as new_scan:
+            body = new_scan.read()
+            self.new_scan_soup = BeautifulSoup(body, 'html.parser')
+        self.head = """  <!DOCTYPE HTML SYSTEM>
             <html>
 
             <head>
@@ -175,143 +185,133 @@ head = """  <!DOCTYPE HTML SYSTEM>
             </style>
             </head>
             """
-body = """  <body>
-            <h1>Brakeman Report</h1>
-            <h2>Summary</h2>
-            <div class="dataTables_wrapper no-footer">
-                <table>
-                <thead>
-                    <tr role="row">
-                    <th>Scanned/Reported</th>
-                    <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody id="summary">
-                    <tr>
-                    <td>Controllers</td>
-                    <td>0</td>
-                    </tr>
-                    <tr>
-                    <td>Errors</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                    <td>Ignored Warnings</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                    <td>Models</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                    <td>Security Warnings</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                    <td>Templates</td>
-                        <td>0</td>
-                    </tr>
-                </tbody>
-                </table>
-            </div>
+        body = """  <body>
+                    <h1>Brakeman Report</h1>
+                    <h2>Summary</h2>
+                    <div class="dataTables_wrapper no-footer">
+                        <table>
+                        <thead>
+                            <tr role="row">
+                            <th>Scanned/Reported</th>
+                            <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary">
+                            <tr>
+                            <td>Controllers</td>
+                            <td>0</td>
+                            </tr>
+                            <tr>
+                            <td>Errors</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                            <td>Ignored Warnings</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                            <td>Models</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                            <td>Security Warnings</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                            <td>Templates</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    </div>
 
 
-            <h2>Controllers</h2>
-            <div class="dataTables_wrapper no-footer">
-                <table>
-                <thead>
-                    <tr>
-                    <th>Name</th>
-                    <th>Parent</th>
-                    <th>Includes</th>
-                    <th>Routes</th>
-                    </tr>
-                </thead>
-                <tbody id="controllers">
-                </tbody>
-                </table>
-            </div>
+                    <h2>Controllers</h2>
+                    <div class="dataTables_wrapper no-footer">
+                        <table>
+                        <thead>
+                            <tr>
+                            <th>Name</th>
+                            <th>Parent</th>
+                            <th>Includes</th>
+                            <th>Routes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="controllers">
+                        </tbody>
+                        </table>
+                    </div>
 
 
-            <h2>Security Warnings</h2>
-            <div class="dataTables_wrapper no-footer">
-                <table>
-                <thead>
-                    <tr>
-                    <th>Confidence</th>
-                    <th>Class</th>
-                    <th>Method</th>
-                    <th>Warning Type</th>
-                    <th>CWE ID</th>
-                    <th>Message</th>
-                    </tr>
-                </thead>
-                <tbody id="security_warnings">
-                </tbody>
-                </table>
-            </div>
+                    <h2>Security Warnings</h2>
+                    <div class="dataTables_wrapper no-footer">
+                        <table>
+                        <thead>
+                            <tr>
+                            <th>Confidence</th>
+                            <th>Class</th>
+                            <th>Method</th>
+                            <th>Warning Type</th>
+                            <th>CWE ID</th>
+                            <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="security_warnings">
+                        </tbody>
+                        </table>
+                    </div>
 
 
-            <h2>Controller Warnings</h2>
-            <div class="dataTables_wrapper no-footer">
-                <table>
-                <thead>
-                    <tr>
-                    <th>Confidence</th>
-                    <th>Controller</th>
-                    <th>Warning Type</th>
-                    <th>CWE ID</th>
-                    <th>Message</th>
-                    </tr>
-                </thead>
-                <tbody id="controller_warnings">
-                </tbody>
-                </table>
-            </div>
+                    <h2>Controller Warnings</h2>
+                    <div class="dataTables_wrapper no-footer">
+                        <table>
+                        <thead>
+                            <tr>
+                            <th>Confidence</th>
+                            <th>Controller</th>
+                            <th>Warning Type</th>
+                            <th>CWE ID</th>
+                            <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="controller_warnings">
+                        </tbody>
+                        </table>
+                    </div>
 
-                <h2>View Warnings</h2>
-            <div class="dataTables_wrapper no-footer">
-                <table>
-                <thead>
-                    <tr>
-                    <th>Confidence</th>
-                    <th>Template</th>
-                    <th>Warning Type</th>
-                    <th>CWE ID</th>
-                    <th>Message</th>
-                    </tr>
-                </thead>
-                <tbody id="view_warnings">
-                </tbody>
-                </table>
-            </div>
-
-
-            <h2>Templates</h2>
-            <div id="templates">
-            </div>
-            </body>"""
+                        <h2>View Warnings</h2>
+                    <div class="dataTables_wrapper no-footer">
+                        <table>
+                        <thead>
+                            <tr>
+                            <th>Confidence</th>
+                            <th>Template</th>
+                            <th>Warning Type</th>
+                            <th>CWE ID</th>
+                            <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="view_warnings">
+                        </tbody>
+                        </table>
+                    </div>
 
 
-# HTML SKELETON
-html_template_soup = BeautifulSoup(body, 'html.parser')
-summary_table_soup = html_template_soup.find("tbody", id="summary")
-security_warning_table_soup = html_template_soup.find("tbody", id="security_warnings")
-controller_warning_table_soup = html_template_soup.find("tbody", id="controller_warnings")
-view_warning_table_soup = html_template_soup.find("tbody", id="view_warnings")
-controller_error_table_soup = html_template_soup.find("tbody", id="controllers")
-template_error_table_soup = html_template_soup.find("div", id="templates")
+                    <h2>Templates</h2>
+                    <div id="templates">
+                    </div>
+                    </body>"""
 
 
-class comparator:
-    def __init__(self, file1, file2):
-        with open(file1, "r") as old_scan:
-            body = old_scan.read()
-            self.old_scan_soup = BeautifulSoup(body, 'html.parser')
+        # HTML SKELETON
+        self.html_template_soup = BeautifulSoup(body, 'html.parser')
+        self.summary_table_soup = self.html_template_soup.find("tbody", id="summary")
+        self.security_warning_table_soup = self.html_template_soup.find("tbody", id="security_warnings")
+        self.controller_warning_table_soup = self.html_template_soup.find("tbody", id="controller_warnings")
+        self.view_warning_table_soup = self.html_template_soup.find("tbody", id="view_warnings")
+        self.controller_error_table_soup = self.html_template_soup.find("tbody", id="controllers")
+        self.template_error_table_soup = self.html_template_soup.find("div", id="templates")
 
-        with open(file2, "r") as new_scan:
-            body = new_scan.read()
-            self.new_scan_soup = BeautifulSoup(body, 'html.parser')
 
     def getText(self, parent):
         return ''.join(parent.find_all(text=True, recursive=False)).strip()
@@ -319,16 +319,11 @@ class comparator:
 
     # TEMPLATES
     def templates(self):
-        global template_error_table_soup
-
-        old_scan_template_soup = self.old_scan_soup.find(
-            "body").find_all("p", recursive=False)
-        new_scan_template_soup_p_tag = self.new_scan_soup.find(
-            "body").find_all("p", recursive=False)
+        old_scan_template_soup = self.old_scan_soup.find("body").find_all("p", recursive=False)
+        new_scan_template_soup_p_tag = self.new_scan_soup.find("body").find_all("p", recursive=False)
         new_scan_template_soup_div_tag = []
         for div in new_scan_template_soup_p_tag:
-            x = div.find_next_sibling("div") if div.find_next_sibling(
-                "div") else div.find_next_sibling("table")
+            x = div.findNextSibling("div") if div.findNextSibling("div") else div.findNextSibling("table")
             new_scan_template_soup_div_tag.append(x)
         old_scan_template_soup_text = []
         for element in old_scan_template_soup:
@@ -337,35 +332,27 @@ class comparator:
 
         for p_tag, div_tag in zip(new_scan_template_soup_p_tag, new_scan_template_soup_div_tag):
             if p_tag.text and p_tag.text not in old_scan_template_soup_text:
-                template_error_table_soup.append(p_tag)
+                self.template_error_table_soup.append(p_tag)
                 if div_tag:
-                    template_error_table_soup.append(div_tag)
+                    self.template_error_table_soup.append(div_tag)
 
 
     # SUMMARY
     def summary(self):
-        global summary_table_soup
-
         try:
-            old_scan_soup_summary = self.old_scan_soup.find(
-                "h2", text="Summary").find_next_sibling("div")
+            old_scan_soup_summary = self.old_scan_soup.find("h2", text="Summary").findNextSibling("div")
         except AttributeError:
             return
         if old_scan_soup_summary is None:
-            old_scan_soup_summary = self.old_scan_soup.find(
-                "h2", text="Summary").find_next_sibling("table").find("tbody")
+            old_scan_soup_summary = self.old_scan_soup.find("h2", text="Summary").findNextSibling("table").find("tbody")
         else:
-            old_scan_soup_summary = self.old_scan_soup.find(
-                "h2", text="Summary").find_next_sibling("div").find("tbody")
+            old_scan_soup_summary = self.old_scan_soup.find("h2", text="Summary").findNextSibling("div").find("tbody")
 
-        new_scan_soup_summary = self.new_scan_soup.find(
-            "h2", text="Summary").find_next_sibling("div")
+        new_scan_soup_summary = self.new_scan_soup.find("h2", text="Summary").findNextSibling("div")
         if new_scan_soup_summary is None:
-            new_scan_soup_summary = self.new_scan_soup.find(
-                "h2", text="Summary").find_next_sibling("table").find("tbody")
+            new_scan_soup_summary = self.new_scan_soup.find("h2", text="Summary").findNextSibling("table").find("tbody")
         else:
-            new_scan_soup_summary = self.new_scan_soup.find(
-                "h2", text="Summary").find_next_sibling("div").find("tbody")
+            new_scan_soup_summary = self.new_scan_soup.find("h2", text="Summary").findNextSibling("div").find("tbody")
 
         Controllers = int(self.getText(new_scan_soup_summary.find("td", text="Controllers").find_next_sibling(
             "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Controllers").find_next_sibling("td")))
@@ -380,248 +367,282 @@ class comparator:
         Templates = int(self.getText(new_scan_soup_summary.find("td", text="Templates").find_next_sibling(
             "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Templates").find_next_sibling("td")))
 
-        summary_table_soup.find("td", text="Controllers").find_next_sibling(
-            "td").contents[0].replace_with(str(Controllers))
-        summary_table_soup.find("td", text="Errors").find_next_sibling(
-            "td").contents[0].replace_with(str(Errors))
-        summary_table_soup.find("td", text="Ignored Warnings").find_next_sibling(
-            "td").contents[0].replace_with(str(Ignored_Warnings))
-        summary_table_soup.find("td", text="Models").find_next_sibling(
-            "td").contents[0].replace_with(str(Models))
-        summary_table_soup.find("td", text="Security Warnings").find_next_sibling(
-            "td").contents[0].replace_with(str(Security_Warnings))
-        summary_table_soup.find("td", text="Templates").find_next_sibling(
-            "td").contents[0].replace_with(str(Templates))
+        self.summary_table_soup.find("td", text="Controllers").find_next_sibling("td").contents[0].replace_with(str(Controllers))
+        self.summary_table_soup.find("td", text="Errors").find_next_sibling("td").contents[0].replace_with(str(Errors))
+        self.summary_table_soup.find("td", text="Ignored Warnings").find_next_sibling("td").contents[0].replace_with(str(Ignored_Warnings))
+        self.summary_table_soup.find("td", text="Models").find_next_sibling("td").contents[0].replace_with(str(Models))
+        self.summary_table_soup.find("td", text="Security Warnings").find_next_sibling("td").contents[0].replace_with(str(Security_Warnings))
+        self.summary_table_soup.find("td", text="Templates").find_next_sibling("td").contents[0].replace_with(str(Templates))
 
 
     # CONTROLLER
     def controller(self):
-        global controller_error_table_soup
-
         old = True
         try:
-            old_scan_soup_controller = self.old_scan_soup.find(
-                "h2", text="Controllers").find_next_sibling("div")
+            old_scan_soup_controller = self.old_scan_soup.find("h2", text="Controllers").findNextSibling("div")
         except AttributeError:
             old = False
         if old and old_scan_soup_controller is None:
-            old_scan_soup_controller = self.old_scan_soup.find(
-                "h2", text="Controllers").find_next_sibling("table").find("tbody")
+            old_scan_soup_controller = self.old_scan_soup.find("h2", text="Controllers").findNextSibling("table").find("tbody")
             old_scan = old_scan_soup_controller.find_all("tr", recursive=False)
         elif old:
-            old_scan_soup_controller = self.old_scan_soup.find(
-                "h2", text="Controllers").find_next_sibling("div").find("tbody")
-            old_scan = old_scan_soup_controller.find_all(
-                "tr", role="row", class_={"odd", "even"}, recursive=False)
+            old_scan_soup_controller = self.old_scan_soup.find("h2", text="Controllers").findNextSibling("div").find("tbody")
+            old_scan = old_scan_soup_controller.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         try:
-            new_scan_soup_controller = self.new_scan_soup.find(
-                "h2", text="Controllers").find_next_sibling("div")
+            new_scan_soup_controller = self.new_scan_soup.find("h2", text="Controllers").findNextSibling("div")
         except AttributeError:
             return
         if new_scan_soup_controller is None:
-            new_scan_soup_controller = self.new_scan_soup.find(
-                "h2", text="Controllers").find_next_sibling("table").find("tbody")
+            new_scan_soup_controller = self.new_scan_soup.find("h2", text="Controllers").findNextSibling("table").find("tbody")
             new_scan = new_scan_soup_controller.find_all("tr", recursive=False)
         else:
-            new_scan_soup_controller = self.new_scan_soup.find(
-                "h2", text="Controllers").find_next_sibling("div").find("tbody")
-            new_scan = new_scan_soup_controller.find_all(
-                "tr", role="row", class_={"odd", "even"}, recursive=False)
+            new_scan_soup_controller = self.new_scan_soup.find("h2", text="Controllers").findNextSibling("div").find("tbody")
+            new_scan = new_scan_soup_controller.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         old_scan_errors = []
         if old:
             for x in old_scan:
                 error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
                 if error_msg:
-                    old_scan_errors.append(error_msg)
+                    if len(error_msg)>1500:
+                        old_scan_errors.append(error_msg[:1500])
+                    else:
+                        old_scan_errors.append(error_msg)
         for x in new_scan:
             error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
-            if error_msg and error_msg not in old_scan_errors:
-                controller_error_table_soup.insert_before(x)
+            if len(error_msg)>1500:
+                error_msg = error_msg[:1500]
+            match = [0]
+            if error_msg in old_scan_errors or not error_msg:
+                continue
+            for string1 in old_scan_errors:
+                length = min(len(string1), len(error_msg))
+                temp = SequenceMatcher(None, string1[:length], error_msg[:length]).ratio()
+                temp = round(temp * 100, 2)
+                match.append(temp)
+                print("Match Percentage", temp)
+                if temp >= 80:
+                    print(string1, error_msg, sep='\n')
+                    break
+            match_percentage = max(match)
+            print("MAX", match_percentage)
+            if match_percentage <= 80:
+                print("New Error")
+                print(error_msg)
+                self.controller_error_table_soup.insert_before(x)
         print("CONTROLLER")
 
 
     # SECURITY WARNING
     def securtiy_warning(self):
-        global security_warning_table_soup
-
         old = True
         try:
-            old_scan_soup_Security_Warnings = self.old_scan_soup.find(
-                "h2", text="Security Warnings").find_next_sibling("div")
+            old_scan_soup_Security_Warnings = self.old_scan_soup.find("h2", text="Security Warnings").findNextSibling("div")
         except AttributeError:
             old = False
         if old and old_scan_soup_Security_Warnings is None:
-            old_scan_soup_Security_Warnings = self.old_scan_soup.find(
-                "h2", text="Security Warnings").find_next_sibling("table").find("tbody")
-            old_scan = old_scan_soup_Security_Warnings.find_all(
-                "tr", recursive=False)
+            old_scan_soup_Security_Warnings = self.old_scan_soup.find("h2", text="Security Warnings").findNextSibling("table").find("tbody")
+            old_scan = old_scan_soup_Security_Warnings.find_all("tr", recursive=False)
         elif old:
-            old_scan_soup_Security_Warnings = self.old_scan_soup.find(
-                "h2", text="Security Warnings").find_next_sibling("div").find("tbody")
-            old_scan = old_scan_soup_Security_Warnings.find_all(
-                "tr", role="row", class_={"odd", "even"}, recursive=False)
+            old_scan_soup_Security_Warnings = self.old_scan_soup.find("h2", text="Security Warnings").findNextSibling("div").find("tbody")
+            old_scan = old_scan_soup_Security_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
         try:
-            new_scan_soup_Security_Warnings = self.new_scan_soup.find(
-                "h2", text="Security Warnings").find_next_sibling("div")
+            new_scan_soup_Security_Warnings = self.new_scan_soup.find("h2", text="Security Warnings").findNextSibling("div")
         except AttributeError:
             return
         if new_scan_soup_Security_Warnings is None:
-            new_scan_soup_Security_Warnings = self.new_scan_soup.find(
-                "h2", text="Security Warnings").find_next_sibling("table").find("tbody")
-            new_scan = new_scan_soup_Security_Warnings.find_all(
-                "tr", recursive=False)
+            new_scan_soup_Security_Warnings = self.new_scan_soup.find("h2", text="Security Warnings").findNextSibling("table").find("tbody")
+            new_scan = new_scan_soup_Security_Warnings.find_all("tr", recursive=False)
         else:
-            new_scan_soup_Security_Warnings = self.new_scan_soup.find(
-                "h2", text="Security Warnings").find_next_sibling("div").find("tbody")
-            new_scan = new_scan_soup_Security_Warnings.find_all(
-                "tr", role="row", class_={"odd", "even"}, recursive=False)
+            new_scan_soup_Security_Warnings = self.new_scan_soup.find("h2", text="Security Warnings").findNextSibling("div").find("tbody")
+            new_scan = new_scan_soup_Security_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         old_scan_errors = []
         if old:
             for element in old_scan:
                 x = copy(element)
-                for child in x.find_all("td", class_="context_line"):
+                for child in x.find_all("table"):
                     child.clear()
                 error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
                 line = re.findall("nearline\d*", error_msg)
                 if line:
                     error_msg = error_msg.replace(line[0], "")
                 if error_msg:
-                    old_scan_errors.append(error_msg)
+                    if len(error_msg)>1500:
+                        old_scan_errors.append(error_msg[:1500])
+                    else:
+                        old_scan_errors.append(error_msg)
         for element in new_scan:
             x = copy(element)
-            for child in x.find_all("td", class_="context_line"):
+            for child in x.find_all("table"):
                 child.clear()
             error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
             line = re.findall("nearline\d*", error_msg)
             if line:
                 error_msg = error_msg.replace(line[0], "")
-            if error_msg and error_msg not in old_scan_errors:
-                security_warning_table_soup.insert_before(element)
+            if len(error_msg)>1500:
+                error_msg = error_msg[:1500]
+            match = [0]
+            if error_msg in old_scan_errors or not error_msg:
+                continue
+            for string1 in old_scan_errors:
+                length = min(len(string1), len(error_msg))
+                temp = SequenceMatcher(None, string1[:length], error_msg[:length]).ratio()
+                temp = round(temp * 100, 2)
+                match.append(temp)
+                print("Match Percentage", temp)
+                if temp >= 80:
+                    print(string1, error_msg, sep='\n')
+                    break
+            match_percentage = max(match)
+            print("MAX", match_percentage)
+            if match_percentage <= 80:
+                print("New Error")
+                print(error_msg)
+                self.security_warning_table_soup.insert_before(element)
         print("SECURITY WARNING")
 
 
     # CONTROLLER WARNING
     def controller_warning(self):
-        global controller_warning_table_soup
-
         old = True
         try:
-            old_scan_soup_Controller_Warnings = self.old_scan_soup.find(
-                "p", text="Controller Warnings").find_next_sibling("div")
+            old_scan_soup_Controller_Warnings = self.old_scan_soup.find("p", text="Controller Warnings").findNextSibling("div")
         except AttributeError:
             old = False
         if old and old_scan_soup_Controller_Warnings is None:
-            old_scan_soup_Controller_Warnings = self.old_scan_soup.find(
-                "p", text="Controller Warnings").find_next_sibling("table").find("tbody")
-            old_scan = old_scan_soup_Controller_Warnings.find_all(
-                "tr", recursive=False)
+            old_scan_soup_Controller_Warnings = self.old_scan_soup.find("p", text="Controller Warnings").findNextSibling("table").find("tbody")
+            old_scan = old_scan_soup_Controller_Warnings.find_all("tr", recursive=False)
         elif old:
-            old_scan_soup_Controller_Warnings = self.old_scan_soup.find(
-                "p", text="Controller Warnings").find_next_sibling("div").find("tbody")
-            old_scan = old_scan_soup_Controller_Warnings.find_all(
-                "tr", role="row", class_={"odd", "even"}, recursive=False)
+            old_scan_soup_Controller_Warnings = self.old_scan_soup.find("p", text="Controller Warnings").findNextSibling("div").find("tbody")
+            old_scan = old_scan_soup_Controller_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         try:
-            new_scan_soup_Controller_Warnings = self.new_scan_soup.find(
-                "p", text="Controller Warnings").find_next_sibling("div")
+            new_scan_soup_Controller_Warnings = self.new_scan_soup.find("p", text="Controller Warnings").findNextSibling("div")
         except AttributeError:
             return
         if new_scan_soup_Controller_Warnings is None:
-            new_scan_soup_Controller_Warning = self.new_scan_soup.find(
-                "p", text="Controller Warnings").find_next_sibling("table").find("tbody")
-            new_scan = new_scan_soup_Controller_Warnings.find_all(
-                "tr", recursive=False)
+            new_scan_soup_Controller_Warnings = self.new_scan_soup.find("p", string="Controller Warnings").findNextSibling("table").find("tbody")
+            new_scan = new_scan_soup_Controller_Warnings.find_all("tr", recursive=False)
         else:
-            new_scan_soup_Controller_Warnings = self.new_scan_soup.find(
-                "p", text="Controller Warnings").find_next_sibling("div").find("tbody")
-            new_scan = new_scan_soup_Controller_Warnings.find_all(
-                "tr", role="row", class_={"odd", "even"}, recursive=False)
+            new_scan_soup_Controller_Warnings = self.new_scan_soup.find("p", text="Controller Warnings").findNextSibling("div").find("tbody")
+            new_scan = new_scan_soup_Controller_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         old_scan_warnings = []
         if old:
             for element in old_scan:
                 x = copy(element)
-                for child in x.find_all("td", class_="context_line sorting_1"):
+                for child in x.find_all("table"):
                     child.clear()
                 error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
                 line = re.findall("nearline\d*", error_msg)
                 if line:
                     error_msg = error_msg.replace(line[0], "")
                 if error_msg:
-                    old_scan_warnings.append(error_msg)
+                    if len(error_msg)>1500:
+                        old_scan_warnings.append(error_msg[:1500])
+                    else:
+                        old_scan_warnings.append(error_msg)
         for element in new_scan:
             x = copy(element)
-            for child in x.find_all("td", class_="context_line sorting_1"):
+            for child in x.find_all("table"):
                 child.clear()
             error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
             line = re.findall("nearline\d*", error_msg)
             if line:
                 error_msg = error_msg.replace(line[0], "")
-            if error_msg and error_msg not in old_scan_warnings:
-                controller_warning_table_soup.insert_before(element)
+            if len(error_msg)>1500:
+                error_msg = error_msg[:1500]
+            match = [0]
+            if error_msg in old_scan_warnings or not error_msg:
+                continue
+            for string1 in old_scan_warnings:
+                length = min(len(string1), len(error_msg))
+                temp = SequenceMatcher(None, string1[:length], error_msg[:length]).ratio()
+                temp = round(temp * 100, 2)
+                match.append(temp)
+                print("Match Percentage", temp)
+                if temp >= 80:
+                    print(string1, error_msg, sep='\n')
+                    break
+            match_percentage = max(match)
+            print("MAX", match_percentage)
+            if match_percentage <= 80:
+                print("New Error")
+                print(error_msg)
+                self.controller_warning_table_soup.insert_before(element)
         print("CONTROLLER WARNING")
 
 
     # VIEWS WARNING
     def view_warning(self):
-        global view_warning_table_soup
-
         old = True
         try:
-            old_scan_soup_View_Warnings = self.old_scan_soup.find(
-                "p", text="View Warnings").find_next_sibling("div")
+            old_scan_soup_View_Warnings = self.old_scan_soup.find("p", text="View Warnings").findNextSibling("div")
         except AttributeError:
             old = False
         if old and old_scan_soup_View_Warnings is None:
-            old_scan_soup_View_Warnings = self.old_scan_soup.find(
-                "p", text="View Warnings").find_next_sibling("table").find("tbody")
+            old_scan_soup_View_Warnings = self.old_scan_soup.find("p", text="View Warnings").findNextSibling("table").find("tbody")
             old_scan = old_scan_soup_View_Warnings.find_all("tr", recursive=False)
         elif old:
-            old_scan_soup_View_Warnings = self.old_scan_soup.find(
-                "p", text="View Warnings").find_next_sibling("div").find("tbody")
-            old_scan = old_scan_soup_View_Warnings.find_all(
-                "tr", role="row", class_={"odd", "even"}, recursive=False)
+            old_scan_soup_View_Warnings = self.old_scan_soup.find("p", text="View Warnings").findNextSibling("div").find("tbody")
+            old_scan = old_scan_soup_View_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         try:
-            new_scan_soup_view_warnings = self.new_scan_soup.find(
-                "p", text="View Warnings").find_next_sibling("div")
+            new_scan_soup_view_warnings = self.new_scan_soup.find("p", text="View Warnings").findNextSibling("div")
         except:
             return
         if new_scan_soup_view_warnings is None:
-            new_scan_soup_view_warnings = self.new_scan_soup.find(
-                "p", text="View Warnings").find_next_sibling("table").find("tbody")
+            new_scan_soup_view_warnings = self.new_scan_soup.find("p", text="View Warnings").findNextSibling("table").find("tbody")
             new_scan = new_scan_soup_view_warnings.find_all("tr", recursive=False)
         else:
-            new_scan_soup_view_warnings = self.new_scan_soup.find(
-                "p", text="View Warnings").find_next_sibling("div").find("tbody")
-            new_scan = new_scan_soup_view_warnings.find_all(
-                "tr", role="row", class_={"odd", "even"}, recursive=False)
+            new_scan_soup_view_warnings = self.new_scan_soup.find("p", text="View Warnings").findNextSibling("div").find("tbody")
+            new_scan = new_scan_soup_view_warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         old_scan_warnings = []
         if old:
             for element in old_scan:
                 x = copy(element)
-                for child in x.find_all("td", class_="context_line sorting_1"):
+                for child in x.find_all("table"):
                     child.clear()
                 error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
                 line = re.findall("nearline\d*", error_msg)
                 if line:
                     error_msg = error_msg.replace(line[0], "")
                 if error_msg:
-                    old_scan_warnings.append(error_msg)
+                    if len(error_msg)>1500:
+                        old_scan_warnings.append(error_msg[:1500])
+                    else:
+                        old_scan_warnings.append(error_msg)
         for element in new_scan:
             x = copy(element)
-            for child in x.find_all("td", class_="context_line sorting_1"):
-                child.clear()
+            for child in x.find_all("table"):
+                    child.clear()
             error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
             line = re.findall("nearline\d*", error_msg)
             if line:
                 error_msg = error_msg.replace(line[0], "")
-            if error_msg and error_msg not in old_scan_warnings:
-                view_warning_table_soup.insert_before(element)
+            if len(error_msg)>1500:
+                error_msg = error_msg[:1500]
+            match = [0]
+            if error_msg in old_scan_warnings or not error_msg:
+                continue
+            for string1 in old_scan_warnings:
+                length = min(len(string1), len(error_msg))
+                temp = SequenceMatcher(None, string1[:length], error_msg[:length]).ratio()
+                temp = round(temp * 100, 2)
+                match.append(temp)
+                print("Match Percentage", temp)
+                if temp >= 80:
+                    print(string1, error_msg, sep='\n')
+                    break
+            match_percentage = max(match)
+            print("MAX", match_percentage)
+            if match_percentage <= 80:
+                print("New Error")
+                print(error_msg)
+                self.view_warning_table_soup.insert_before(element)
         print("VIEW WARNING")
 
 
@@ -632,4 +653,4 @@ class comparator:
         self.controller_warning()
         self.view_warning()
         self.templates()
-        return (head, html_template_soup)
+        return (self.head, self.html_template_soup)
