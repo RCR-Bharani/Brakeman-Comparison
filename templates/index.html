@@ -21,7 +21,7 @@
 
     h1 {
       text-align: center;
-      margin-bottom:  100px;
+      margin-bottom: 100px;
     }
 
     label {
@@ -46,11 +46,52 @@
       padding: 10px 20px;
       cursor: pointer;
     }
+
+    .header {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100%;
+      background: linear-gradient(135deg, rgba(6, 147, 227, 1) 0%, rgb(155, 81, 224) 100%);
+      text-align: center;
+    }
+
+    .footer {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background: linear-gradient(135deg, rgba(6, 147, 227, 1) 0%, rgb(155, 81, 224) 100%);
+      color: white;
+      text-align: center;
+    }
+
+    @media print {
+      .noprint {
+        display: none;
+      }
+    }
+
+    .select {
+      border: 2px solid red;
+      border-radius: 5px;
+      width: 30%;
+      padding: 10px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: calc(2% + 46px);
+      margin-bottom: 5%;
+    }
   </style>
 </head>
 
 <body>
-  <form method="post" action="/upload" enctype="multipart/form-data">
+  <div class="header noprint" id="myHeader">
+    <img class="normal" src="https://use.rently.com/wp-content/themes/rently/images/logo.png" alt="Rently"
+      style="margin:1%;">
+  </div>
+
+  <form class="noprint select" method="post" action="/upload" enctype="multipart/form-data">
     <h1>Upload Brakeman Scan Report Files</h1>
     <label for="file1">Select File 1 (Before Deployment):</label>
     <input type="file" name="file1" id="file1">
@@ -58,6 +99,11 @@
     <input type="file" name="file2" id="file2">
     <input type="submit" value="Upload">
   </form>
+  <div class="footer noprint">
+    <p style="margin:0.75%;">
+      <i>Powered by SPC Team</i>
+    </p>
+  </div>
 </body>
 
 </html>
