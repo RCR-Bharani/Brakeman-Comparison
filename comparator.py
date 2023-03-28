@@ -1,16 +1,16 @@
 import datetime
 import re
+import sys
 from copy import copy
 from bs4 import BeautifulSoup
 from difflib import SequenceMatcher
 
 
-class comparator:
+class Comparator:
     def __init__(self, file1, file2):
         with open(file1, "r") as old_scan:
             body = old_scan.read()
             self.old_scan_soup = BeautifulSoup(body, 'html.parser')
-
         with open(file2, "r") as new_scan:
             body = new_scan.read()
             self.new_scan_soup = BeautifulSoup(body, 'html.parser')
@@ -182,6 +182,7 @@ class comparator:
                 span.filename {
                 font-family: monospace;
                 }
+                
             </style>
             </head>
             """
@@ -192,33 +193,40 @@ class comparator:
                         <table>
                         <thead>
                             <tr role="row">
-                            <th>Scanned/Reported</th>
-                            <th>Total</th>
+                            <th style="text-align: center">Scanned/Reported</th>
+                            <th style="text-align: center">Fixed Errors</th>
+                            <th style="text-align: center">New Errors</th>
                             </tr>
                         </thead>
                         <tbody id="summary">
-                            <tr>
+                            <tr style="text-align: center">
                             <td>Controllers</td>
-                            <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
                             </tr>
-                            <tr>
+                            <tr style="text-align: center">
                             <td>Errors</td>
                                 <td>0</td>
+                                <td>0</td>
                             </tr>
-                            <tr>
+                            <tr style="text-align: center">
                             <td>Ignored Warnings</td>
                                 <td>0</td>
+                                <td>0</td>
                             </tr>
-                            <tr>
+                            <tr style="text-align: center">
                             <td>Models</td>
                                 <td>0</td>
-                            </tr>
-                            <tr>
-                            <td>Security Warnings</td>
                                 <td>0</td>
                             </tr>
-                            <tr>
+                            <tr style="text-align: center">
+                            <td>Security Warnings</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
+                            <tr style="text-align: center">
                             <td>Templates</td>
+                                <td>0</td>
                                 <td>0</td>
                             </tr>
                         </tbody>
@@ -302,7 +310,6 @@ class comparator:
                     </div>
                     </body>"""
 
-
         # HTML SKELETON
         self.html_template_soup = BeautifulSoup(body, 'html.parser')
         self.summary_table_soup = self.html_template_soup.find("tbody", id="summary")
@@ -311,11 +318,15 @@ class comparator:
         self.view_warning_table_soup = self.html_template_soup.find("tbody", id="view_warnings")
         self.controller_error_table_soup = self.html_template_soup.find("tbody", id="controllers")
         self.template_error_table_soup = self.html_template_soup.find("div", id="templates")
-
+        self.no_of_controllers = 0
+        self.no_of_errors = 0
+        self.no_of_ignored_warnings = 0
+        self.no_of_models = 0
+        self.no_of_security_warnings = 0
+        self.no_of_templates = 0
 
     def getText(self, parent):
         return ''.join(parent.find_all(text=True, recursive=False)).strip()
-
 
     # TEMPLATES
     def templates(self):
@@ -334,8 +345,8 @@ class comparator:
             if p_tag.text and p_tag.text not in old_scan_template_soup_text:
                 self.template_error_table_soup.append(p_tag)
                 if div_tag:
+                    self.no_of_templates += 1
                     self.template_error_table_soup.append(div_tag)
-
 
     # SUMMARY
     def summary(self):
@@ -355,25 +366,35 @@ class comparator:
             new_scan_soup_summary = self.new_scan_soup.find("h2", text="Summary").findNextSibling("div").find("tbody")
 
         Controllers = int(self.getText(new_scan_soup_summary.find("td", text="Controllers").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Controllers").find_next_sibling("td")))
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Controllers").find_next_sibling("td"))) - self.no_of_controllers
         Errors = int(self.getText(new_scan_soup_summary.find("td", text="Errors").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Errors").find_next_sibling("td")))
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Errors").find_next_sibling("td"))) - self.no_of_errors
         Ignored_Warnings = int(self.getText(new_scan_soup_summary.find("td", text="Ignored Warnings").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Ignored Warnings").find_next_sibling("td")))
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Ignored Warnings").find_next_sibling("td"))) - self.no_of_ignored_warnings
         Models = int(self.getText(new_scan_soup_summary.find("td", text="Models").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Models").find_next_sibling("td")))
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Models").find_next_sibling("td"))) - self.no_of_models
         Security_Warnings = int(self.getText(new_scan_soup_summary.find("td", text="Security Warnings").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Security Warnings").find_next_sibling("td")))
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Security Warnings").find_next_sibling("td"))) - self.no_of_security_warnings
         Templates = int(self.getText(new_scan_soup_summary.find("td", text="Templates").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Templates").find_next_sibling("td")))
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Templates").find_next_sibling("td"))) - self.no_of_templates
 
         self.summary_table_soup.find("td", text="Controllers").find_next_sibling("td").contents[0].replace_with(str(Controllers))
-        self.summary_table_soup.find("td", text="Errors").find_next_sibling("td").contents[0].replace_with(str(Errors))
-        self.summary_table_soup.find("td", text="Ignored Warnings").find_next_sibling("td").contents[0].replace_with(str(Ignored_Warnings))
-        self.summary_table_soup.find("td", text="Models").find_next_sibling("td").contents[0].replace_with(str(Models))
-        self.summary_table_soup.find("td", text="Security Warnings").find_next_sibling("td").contents[0].replace_with(str(Security_Warnings))
-        self.summary_table_soup.find("td", text="Templates").find_next_sibling("td").contents[0].replace_with(str(Templates))
+        self.summary_table_soup.find("td", text="Controllers").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_controllers))
 
+        self.summary_table_soup.find("td", text="Errors").find_next_sibling("td").contents[0].replace_with(str(Errors))
+        self.summary_table_soup.find("td", text="Errors").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_errors))
+
+        self.summary_table_soup.find("td", text="Ignored Warnings").find_next_sibling("td").contents[0].replace_with(str(Ignored_Warnings))
+        self.summary_table_soup.find("td", text="Ignored Warnings").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_ignored_warnings))
+
+        self.summary_table_soup.find("td", text="Models").find_next_sibling("td").contents[0].replace_with(str(Models))
+        self.summary_table_soup.find("td", text="Models").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_models))
+
+        self.summary_table_soup.find("td", text="Security Warnings").find_next_sibling("td").contents[0].replace_with(str(Security_Warnings))
+        self.summary_table_soup.find("td", text="Security Warnings").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_security_warnings))
+
+        self.summary_table_soup.find("td", text="Templates").find_next_sibling("td").contents[0].replace_with(str(Templates))
+        self.summary_table_soup.find("td", text="Templates").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_templates))
 
     # CONTROLLER
     def controller(self):
@@ -405,13 +426,13 @@ class comparator:
             for x in old_scan:
                 error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
                 if error_msg:
-                    if len(error_msg)>1500:
+                    if len(error_msg) > 1500:
                         old_scan_errors.append(error_msg[:1500])
                     else:
                         old_scan_errors.append(error_msg)
         for x in new_scan:
             error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
-            if len(error_msg)>1500:
+            if len(error_msg) > 1500:
                 error_msg = error_msg[:1500]
             match = [0]
             if error_msg in old_scan_errors or not error_msg:
@@ -428,11 +449,11 @@ class comparator:
             match_percentage = max(match)
             print("MAX", match_percentage)
             if match_percentage <= 80:
+                self.no_of_controllers += 1
                 print("New Error")
                 print(error_msg)
                 self.controller_error_table_soup.insert_before(x)
         print("CONTROLLER")
-
 
     # SECURITY WARNING
     def securtiy_warning(self):
@@ -469,7 +490,7 @@ class comparator:
                 if line:
                     error_msg = error_msg.replace(line[0], "")
                 if error_msg:
-                    if len(error_msg)>1500:
+                    if len(error_msg) > 1500:
                         old_scan_errors.append(error_msg[:1500])
                     else:
                         old_scan_errors.append(error_msg)
@@ -481,7 +502,7 @@ class comparator:
             line = re.findall("nearline\d*", error_msg)
             if line:
                 error_msg = error_msg.replace(line[0], "")
-            if len(error_msg)>1500:
+            if len(error_msg) > 1500:
                 error_msg = error_msg[:1500]
             match = [0]
             if error_msg in old_scan_errors or not error_msg:
@@ -500,9 +521,9 @@ class comparator:
             if match_percentage <= 80:
                 print("New Error")
                 print(error_msg)
+                self.no_of_security_warnings += 1
                 self.security_warning_table_soup.insert_before(element)
         print("SECURITY WARNING")
-
 
     # CONTROLLER WARNING
     def controller_warning(self):
@@ -540,7 +561,7 @@ class comparator:
                 if line:
                     error_msg = error_msg.replace(line[0], "")
                 if error_msg:
-                    if len(error_msg)>1500:
+                    if len(error_msg) > 1500:
                         old_scan_warnings.append(error_msg[:1500])
                     else:
                         old_scan_warnings.append(error_msg)
@@ -552,7 +573,7 @@ class comparator:
             line = re.findall("nearline\d*", error_msg)
             if line:
                 error_msg = error_msg.replace(line[0], "")
-            if len(error_msg)>1500:
+            if len(error_msg) > 1500:
                 error_msg = error_msg[:1500]
             match = [0]
             if error_msg in old_scan_warnings or not error_msg:
@@ -573,7 +594,6 @@ class comparator:
                 print(error_msg)
                 self.controller_warning_table_soup.insert_before(element)
         print("CONTROLLER WARNING")
-
 
     # VIEWS WARNING
     def view_warning(self):
@@ -611,19 +631,19 @@ class comparator:
                 if line:
                     error_msg = error_msg.replace(line[0], "")
                 if error_msg:
-                    if len(error_msg)>1500:
+                    if len(error_msg) > 1500:
                         old_scan_warnings.append(error_msg[:1500])
                     else:
                         old_scan_warnings.append(error_msg)
         for element in new_scan:
             x = copy(element)
             for child in x.find_all("table"):
-                    child.clear()
+                child.clear()
             error_msg = "".join(i.strip() for i in x.text.strip() if i.strip())
             line = re.findall("nearline\d*", error_msg)
             if line:
                 error_msg = error_msg.replace(line[0], "")
-            if len(error_msg)>1500:
+            if len(error_msg) > 1500:
                 error_msg = error_msg[:1500]
             match = [0]
             if error_msg in old_scan_warnings or not error_msg:
@@ -645,12 +665,26 @@ class comparator:
                 self.view_warning_table_soup.insert_before(element)
         print("VIEW WARNING")
 
-
     def call_stack(self):
-        self.summary()
         self.controller()
         self.securtiy_warning()
         self.controller_warning()
         self.view_warning()
         self.templates()
-        return (self.head, self.html_template_soup)
+        self.summary()
+        return self.head, self.html_template_soup
+
+
+file1_before_deployment = sys.argv[1]
+file2_after_deployment = sys.argv[2]
+Obj = Comparator(file1_before_deployment, file2_after_deployment)
+head, html_template_soup = Obj.call_stack()
+
+template_folder = "/home/rently/PycharmProjects/Brakeman-Comparison/templates/"
+file_name = "Brakeman_comparison-" + datetime.datetime.now().strftime("%Y%m%d%H%M") + ".html"
+file_path = template_folder + file_name
+
+content = str(html_template_soup).replace('{', '[').replace('}', ']')
+with open(file_path, "w") as html_template:
+    html_template.write(head + content)
+print("REPORT NAME", file_name)
