@@ -1,4 +1,3 @@
-import datetime
 import re
 import sys
 from copy import copy
@@ -680,11 +679,9 @@ file2_after_deployment = sys.argv[2]
 Obj = Comparator(file1_before_deployment, file2_after_deployment)
 head, html_template_soup = Obj.call_stack()
 
-template_folder = "/home/rently/PycharmProjects/Brakeman-Comparison/templates/"
-file_name = "Brakeman_comparison-" + datetime.datetime.now().strftime("%Y%m%d%H%M") + ".html"
-file_path = template_folder + file_name
+file_name = file2_after_deployment.split(".html")[0] + "with" + file1_before_deployment.split(".html")[0] + ".html"
 
 content = str(html_template_soup).replace('{', '[').replace('}', ']')
-with open(file_path, "w") as html_template:
+with open(file_name, "w") as html_template:
     html_template.write(head + content)
 print("REPORT NAME", file_name)
