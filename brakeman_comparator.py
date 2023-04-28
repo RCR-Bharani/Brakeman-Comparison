@@ -676,10 +676,13 @@ class Comparator:
 
 file1_before_deployment = sys.argv[1]
 file2_after_deployment = sys.argv[2]
+print("File 1 Name: {}\nFile 2 Name: {}".format(file1_before_deployment, file2_after_deployment))
 Obj = Comparator(file1_before_deployment, file2_after_deployment)
 head, html_template_soup = Obj.call_stack()
 
-file_name = "/tmp/artifacts/" + "compared" + file2_after_deployment.split(".html")[0] + "with" + file1_before_deployment.split(".html")[0] + ".html"
+file1_before_deployment = file1_before_deployment.split("/")[-1]
+file2_after_deployment = file2_after_deployment.split("/")[-1]
+file_name = "/tmp/artifacts/" + "compared_" + file2_after_deployment.split(".html")[0] + "_with_" + file1_before_deployment.split(".html")[0] + ".html"
 
 content = str(html_template_soup).replace('{', '[').replace('}', ']')
 with open(file_name, "w") as html_template:
