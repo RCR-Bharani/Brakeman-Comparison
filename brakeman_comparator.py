@@ -325,7 +325,7 @@ class Comparator:
         self.no_of_templates = 0
 
     def getText(self, parent):
-        return ''.join(parent.find_all(text=True, recursive=False)).strip()
+        return ''.join(parent.find_all(string=True, recursive=False)).strip()
 
     # TEMPLATES
     def templates(self):
@@ -350,74 +350,74 @@ class Comparator:
     # SUMMARY
     def summary(self):
         try:
-            old_scan_soup_summary = self.old_scan_soup.find("h2", text="Summary").findNextSibling("div")
+            old_scan_soup_summary = self.old_scan_soup.find("h2", string="Summary").findNextSibling("div")
         except AttributeError:
             return
         if old_scan_soup_summary is None:
-            old_scan_soup_summary = self.old_scan_soup.find("h2", text="Summary").findNextSibling("table").find("tbody")
+            old_scan_soup_summary = self.old_scan_soup.find("h2", string="Summary").findNextSibling("table").find("tbody")
         else:
-            old_scan_soup_summary = self.old_scan_soup.find("h2", text="Summary").findNextSibling("div").find("tbody")
+            old_scan_soup_summary = self.old_scan_soup.find("h2", string="Summary").findNextSibling("div").find("tbody")
 
-        new_scan_soup_summary = self.new_scan_soup.find("h2", text="Summary").findNextSibling("div")
+        new_scan_soup_summary = self.new_scan_soup.find("h2", string="Summary").findNextSibling("div")
         if new_scan_soup_summary is None:
-            new_scan_soup_summary = self.new_scan_soup.find("h2", text="Summary").findNextSibling("table").find("tbody")
+            new_scan_soup_summary = self.new_scan_soup.find("h2", string="Summary").findNextSibling("table").find("tbody")
         else:
-            new_scan_soup_summary = self.new_scan_soup.find("h2", text="Summary").findNextSibling("div").find("tbody")
+            new_scan_soup_summary = self.new_scan_soup.find("h2", string="Summary").findNextSibling("div").find("tbody")
 
-        Controllers = int(self.getText(new_scan_soup_summary.find("td", text="Controllers").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Controllers").find_next_sibling("td"))) - self.no_of_controllers
-        Errors = int(self.getText(new_scan_soup_summary.find("td", text="Errors").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Errors").find_next_sibling("td"))) - self.no_of_errors
-        Ignored_Warnings = int(self.getText(new_scan_soup_summary.find("td", text="Ignored Warnings").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Ignored Warnings").find_next_sibling("td"))) - self.no_of_ignored_warnings
-        Models = int(self.getText(new_scan_soup_summary.find("td", text="Models").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Models").find_next_sibling("td"))) - self.no_of_models
-        Security_Warnings = int(self.getText(new_scan_soup_summary.find("td", text="Security Warnings").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Security Warnings").find_next_sibling("td"))) - self.no_of_security_warnings
-        Templates = int(self.getText(new_scan_soup_summary.find("td", text="Templates").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", text="Templates").find_next_sibling("td"))) - self.no_of_templates
+        Controllers = int(self.getText(new_scan_soup_summary.find("td", string="Controllers").find_next_sibling(
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Controllers").find_next_sibling("td"))) - self.no_of_controllers
+        Errors = int(self.getText(new_scan_soup_summary.find("td", string="Errors").find_next_sibling(
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Errors").find_next_sibling("td"))) - self.no_of_errors
+        Ignored_Warnings = int(self.getText(new_scan_soup_summary.find("td", string="Ignored Warnings").find_next_sibling(
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Ignored Warnings").find_next_sibling("td"))) - self.no_of_ignored_warnings
+        Models = int(self.getText(new_scan_soup_summary.find("td", string="Models").find_next_sibling(
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Models").find_next_sibling("td"))) - self.no_of_models
+        Security_Warnings = int(self.getText(new_scan_soup_summary.find("td", string="Security Warnings").find_next_sibling(
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Security Warnings").find_next_sibling("td"))) - self.no_of_security_warnings
+        Templates = int(self.getText(new_scan_soup_summary.find("td", string="Templates").find_next_sibling(
+            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Templates").find_next_sibling("td"))) - self.no_of_templates
 
-        self.summary_table_soup.find("td", text="Controllers").find_next_sibling("td").contents[0].replace_with(str(Controllers))
-        self.summary_table_soup.find("td", text="Controllers").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_controllers))
+        self.summary_table_soup.find("td", string="Controllers").find_next_sibling("td").contents[0].replace_with(str(Controllers))
+        self.summary_table_soup.find("td", string="Controllers").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_controllers))
 
-        self.summary_table_soup.find("td", text="Errors").find_next_sibling("td").contents[0].replace_with(str(Errors))
-        self.summary_table_soup.find("td", text="Errors").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_errors))
+        self.summary_table_soup.find("td", string="Errors").find_next_sibling("td").contents[0].replace_with(str(Errors))
+        self.summary_table_soup.find("td", string="Errors").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_errors))
 
-        self.summary_table_soup.find("td", text="Ignored Warnings").find_next_sibling("td").contents[0].replace_with(str(Ignored_Warnings))
-        self.summary_table_soup.find("td", text="Ignored Warnings").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_ignored_warnings))
+        self.summary_table_soup.find("td", string="Ignored Warnings").find_next_sibling("td").contents[0].replace_with(str(Ignored_Warnings))
+        self.summary_table_soup.find("td", string="Ignored Warnings").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_ignored_warnings))
 
-        self.summary_table_soup.find("td", text="Models").find_next_sibling("td").contents[0].replace_with(str(Models))
-        self.summary_table_soup.find("td", text="Models").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_models))
+        self.summary_table_soup.find("td", string="Models").find_next_sibling("td").contents[0].replace_with(str(Models))
+        self.summary_table_soup.find("td", string="Models").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_models))
 
-        self.summary_table_soup.find("td", text="Security Warnings").find_next_sibling("td").contents[0].replace_with(str(Security_Warnings))
-        self.summary_table_soup.find("td", text="Security Warnings").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_security_warnings))
+        self.summary_table_soup.find("td", string="Security Warnings").find_next_sibling("td").contents[0].replace_with(str(Security_Warnings))
+        self.summary_table_soup.find("td", string="Security Warnings").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_security_warnings))
 
-        self.summary_table_soup.find("td", text="Templates").find_next_sibling("td").contents[0].replace_with(str(Templates))
-        self.summary_table_soup.find("td", text="Templates").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_templates))
+        self.summary_table_soup.find("td", string="Templates").find_next_sibling("td").contents[0].replace_with(str(Templates))
+        self.summary_table_soup.find("td", string="Templates").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_templates))
 
     # CONTROLLER
     def controller(self):
         old = True
         try:
-            old_scan_soup_controller = self.old_scan_soup.find("h2", text="Controllers").findNextSibling("div")
+            old_scan_soup_controller = self.old_scan_soup.find("h2", string="Controllers").findNextSibling("div")
         except AttributeError:
             old = False
         if old and old_scan_soup_controller is None:
-            old_scan_soup_controller = self.old_scan_soup.find("h2", text="Controllers").findNextSibling("table").find("tbody")
+            old_scan_soup_controller = self.old_scan_soup.find("h2", string="Controllers").findNextSibling("table").find("tbody")
             old_scan = old_scan_soup_controller.find_all("tr", recursive=False)
         elif old:
-            old_scan_soup_controller = self.old_scan_soup.find("h2", text="Controllers").findNextSibling("div").find("tbody")
+            old_scan_soup_controller = self.old_scan_soup.find("h2", string="Controllers").findNextSibling("div").find("tbody")
             old_scan = old_scan_soup_controller.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         try:
-            new_scan_soup_controller = self.new_scan_soup.find("h2", text="Controllers").findNextSibling("div")
+            new_scan_soup_controller = self.new_scan_soup.find("h2", string="Controllers").findNextSibling("div")
         except AttributeError:
             return
         if new_scan_soup_controller is None:
-            new_scan_soup_controller = self.new_scan_soup.find("h2", text="Controllers").findNextSibling("table").find("tbody")
+            new_scan_soup_controller = self.new_scan_soup.find("h2", string="Controllers").findNextSibling("table").find("tbody")
             new_scan = new_scan_soup_controller.find_all("tr", recursive=False)
         else:
-            new_scan_soup_controller = self.new_scan_soup.find("h2", text="Controllers").findNextSibling("div").find("tbody")
+            new_scan_soup_controller = self.new_scan_soup.find("h2", string="Controllers").findNextSibling("div").find("tbody")
             new_scan = new_scan_soup_controller.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         old_scan_errors = []
@@ -458,24 +458,24 @@ class Comparator:
     def securtiy_warning(self):
         old = True
         try:
-            old_scan_soup_Security_Warnings = self.old_scan_soup.find("h2", text="Security Warnings").findNextSibling("div")
+            old_scan_soup_Security_Warnings = self.old_scan_soup.find("h2", string="Security Warnings").findNextSibling("div")
         except AttributeError:
             old = False
         if old and old_scan_soup_Security_Warnings is None:
-            old_scan_soup_Security_Warnings = self.old_scan_soup.find("h2", text="Security Warnings").findNextSibling("table").find("tbody")
+            old_scan_soup_Security_Warnings = self.old_scan_soup.find("h2", string="Security Warnings").findNextSibling("table").find("tbody")
             old_scan = old_scan_soup_Security_Warnings.find_all("tr", recursive=False)
         elif old:
-            old_scan_soup_Security_Warnings = self.old_scan_soup.find("h2", text="Security Warnings").findNextSibling("div").find("tbody")
+            old_scan_soup_Security_Warnings = self.old_scan_soup.find("h2", string="Security Warnings").findNextSibling("div").find("tbody")
             old_scan = old_scan_soup_Security_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
         try:
-            new_scan_soup_Security_Warnings = self.new_scan_soup.find("h2", text="Security Warnings").findNextSibling("div")
+            new_scan_soup_Security_Warnings = self.new_scan_soup.find("h2", string="Security Warnings").findNextSibling("div")
         except AttributeError:
             return
         if new_scan_soup_Security_Warnings is None:
-            new_scan_soup_Security_Warnings = self.new_scan_soup.find("h2", text="Security Warnings").findNextSibling("table").find("tbody")
+            new_scan_soup_Security_Warnings = self.new_scan_soup.find("h2", string="Security Warnings").findNextSibling("table").find("tbody")
             new_scan = new_scan_soup_Security_Warnings.find_all("tr", recursive=False)
         else:
-            new_scan_soup_Security_Warnings = self.new_scan_soup.find("h2", text="Security Warnings").findNextSibling("div").find("tbody")
+            new_scan_soup_Security_Warnings = self.new_scan_soup.find("h2", string="Security Warnings").findNextSibling("div").find("tbody")
             new_scan = new_scan_soup_Security_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         old_scan_errors = []
@@ -528,25 +528,25 @@ class Comparator:
     def controller_warning(self):
         old = True
         try:
-            old_scan_soup_Controller_Warnings = self.old_scan_soup.find("p", text="Controller Warnings").findNextSibling("div")
+            old_scan_soup_Controller_Warnings = self.old_scan_soup.find("p", string="Controller Warnings").findNextSibling("div")
         except AttributeError:
             old = False
         if old and old_scan_soup_Controller_Warnings is None:
-            old_scan_soup_Controller_Warnings = self.old_scan_soup.find("p", text="Controller Warnings").findNextSibling("table").find("tbody")
+            old_scan_soup_Controller_Warnings = self.old_scan_soup.find("p", string="Controller Warnings").findNextSibling("table").find("tbody")
             old_scan = old_scan_soup_Controller_Warnings.find_all("tr", recursive=False)
         elif old:
-            old_scan_soup_Controller_Warnings = self.old_scan_soup.find("p", text="Controller Warnings").findNextSibling("div").find("tbody")
+            old_scan_soup_Controller_Warnings = self.old_scan_soup.find("p", string="Controller Warnings").findNextSibling("div").find("tbody")
             old_scan = old_scan_soup_Controller_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         try:
-            new_scan_soup_Controller_Warnings = self.new_scan_soup.find("p", text="Controller Warnings").findNextSibling("div")
+            new_scan_soup_Controller_Warnings = self.new_scan_soup.find("p", string="Controller Warnings").findNextSibling("div")
         except AttributeError:
             return
         if new_scan_soup_Controller_Warnings is None:
             new_scan_soup_Controller_Warnings = self.new_scan_soup.find("p", string="Controller Warnings").findNextSibling("table").find("tbody")
             new_scan = new_scan_soup_Controller_Warnings.find_all("tr", recursive=False)
         else:
-            new_scan_soup_Controller_Warnings = self.new_scan_soup.find("p", text="Controller Warnings").findNextSibling("div").find("tbody")
+            new_scan_soup_Controller_Warnings = self.new_scan_soup.find("p", string="Controller Warnings").findNextSibling("div").find("tbody")
             new_scan = new_scan_soup_Controller_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         old_scan_warnings = []
@@ -598,25 +598,25 @@ class Comparator:
     def view_warning(self):
         old = True
         try:
-            old_scan_soup_View_Warnings = self.old_scan_soup.find("p", text="View Warnings").findNextSibling("div")
+            old_scan_soup_View_Warnings = self.old_scan_soup.find("p", string="View Warnings").findNextSibling("div")
         except AttributeError:
             old = False
         if old and old_scan_soup_View_Warnings is None:
-            old_scan_soup_View_Warnings = self.old_scan_soup.find("p", text="View Warnings").findNextSibling("table").find("tbody")
+            old_scan_soup_View_Warnings = self.old_scan_soup.find("p", string="View Warnings").findNextSibling("table").find("tbody")
             old_scan = old_scan_soup_View_Warnings.find_all("tr", recursive=False)
         elif old:
-            old_scan_soup_View_Warnings = self.old_scan_soup.find("p", text="View Warnings").findNextSibling("div").find("tbody")
+            old_scan_soup_View_Warnings = self.old_scan_soup.find("p", string="View Warnings").findNextSibling("div").find("tbody")
             old_scan = old_scan_soup_View_Warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         try:
-            new_scan_soup_view_warnings = self.new_scan_soup.find("p", text="View Warnings").findNextSibling("div")
+            new_scan_soup_view_warnings = self.new_scan_soup.find("p", string="View Warnings").findNextSibling("div")
         except:
             return
         if new_scan_soup_view_warnings is None:
-            new_scan_soup_view_warnings = self.new_scan_soup.find("p", text="View Warnings").findNextSibling("table").find("tbody")
+            new_scan_soup_view_warnings = self.new_scan_soup.find("p", string="View Warnings").findNextSibling("table").find("tbody")
             new_scan = new_scan_soup_view_warnings.find_all("tr", recursive=False)
         else:
-            new_scan_soup_view_warnings = self.new_scan_soup.find("p", text="View Warnings").findNextSibling("div").find("tbody")
+            new_scan_soup_view_warnings = self.new_scan_soup.find("p", string="View Warnings").findNextSibling("div").find("tbody")
             new_scan = new_scan_soup_view_warnings.find_all("tr", role="row", class_={"odd", "even"}, recursive=False)
 
         old_scan_warnings = []
@@ -674,17 +674,17 @@ class Comparator:
         return self.head, self.html_template_soup
 
 
-file1_before_deployment = sys.argv[1]
-file2_after_deployment = sys.argv[2]
-print("File 1 Name: {}\nFile 2 Name: {}".format(file1_before_deployment, file2_after_deployment))
-Obj = Comparator(file1_before_deployment, file2_after_deployment)
-head, html_template_soup = Obj.call_stack()
-
-file1_before_deployment = file1_before_deployment.split("/")[-1]
-file2_after_deployment = file2_after_deployment.split("/")[-1]
-file_name = "/tmp/artifacts/" + "compared_" + file2_after_deployment.split(".html")[0] + "_with_" + file1_before_deployment.split(".html")[0] + ".html"
-
-content = str(html_template_soup).replace('{', '[').replace('}', ']')
-with open(file_name, "w") as html_template:
-    html_template.write(head + content)
-print("REPORT NAME", file_name)
+# file1_before_deployment = sys.argv[1]
+# file2_after_deployment = sys.argv[2]
+# print("File 1 Name: {}\nFile 2 Name: {}".format(file1_before_deployment, file2_after_deployment))
+# Obj = Comparator(file1_before_deployment, file2_after_deployment)
+# head, html_template_soup = Obj.call_stack()
+#
+# file1_before_deployment = file1_before_deployment.split("/")[-1]
+# file2_after_deployment = file2_after_deployment.split("/")[-1]
+# file_name = "/tmp/artifacts/" + "compared_" + file2_after_deployment.split(".html")[0] + "_with_" + file1_before_deployment.split(".html")[0] + ".html"
+#
+# content = str(html_template_soup).replace('{', '[').replace('}', ']')
+# with open(file_name, "w") as html_template:
+#     html_template.write(head + content)
+# print("REPORT NAME", file_name)

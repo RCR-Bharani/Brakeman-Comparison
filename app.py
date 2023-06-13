@@ -1,12 +1,14 @@
 import datetime
 import re
+import time
 from copy import copy
 from bs4 import BeautifulSoup
 from flask import Flask, render_template, render_template_string, request, redirect, url_for
 import os
-from comparator import comparator
+from brakeman_comparator import Comparator
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="/home/rently/PycharmProjects/Brakeman-Comparison/templates/")
+app.config['EXPLAIN_TEMPLATE_LOADING'] = True
 app.config['UPLOAD_FOLDER'] = '/home/rently/Downloads/new/'
 
 @app.route('/')
@@ -22,15 +24,22 @@ def upload_file():
     filename2 = file2.filename
     file1.save(os.path.join(app.config['UPLOAD_FOLDER'], filename1))
     file2.save(os.path.join(app.config['UPLOAD_FOLDER'], filename2))
+    file1_before_deployment = os.path.join(app.config['UPLOAD_FOLDER'], filename1)
+    file2_after_deployment = os.path.join(app.config['UPLOAD_FOLDER'], filename2)
 
-    html_template_soup = comparator(file1=os.path.join(app.config['UPLOAD_FOLDER'], filename1), file2=os.path.join(app.config['UPLOAD_FOLDER'], filename2))
     template_folder = "/home/rently/PycharmProjects/Brakeman-Comparison/templates/"
-    file_name = "Brakeman_comparison-" + datetime.datetime.now().strftime("%Y%m%d%H%M") + ".html"
-    file_path = template_folder + file_name
-    head, html_template_soup = html_template_soup.call_stack()
+    print("File 1 Name: {}\nFile 2 Name: {}".format(file1_before_deployment, file2_after_deployment))
+
+    Obj = Comparator(file1_before_deployment, file2_after_deployment)
+    head, html_template_soup = Obj.call_stack()
+
+    file1_before_deployment = file1_before_deployment.split("/")[-1]
+    file2_after_deployment = file2_after_deployment.split("/")[-1]
+    file_name = "compared_" + file2_after_deployment.split(".html")[0] + "_with_" + file1_before_deployment.split(".html")[0] + ".html"
+    file = template_folder + file_name
     content = str(html_template_soup).replace('{', '[').replace('}', ']')
-    with open(file_path, "w") as html_template:
-        html_template.write(head+content)
+    with open(file, "w") as html_template:
+        html_template.write(head + content)
     print("REPORT NAME", file_name)
     return redirect(url_for('success', filename=file_name))
 
