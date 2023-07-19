@@ -364,35 +364,29 @@ class Comparator:
         else:
             new_scan_soup_summary = self.new_scan_soup.find("h2", string="Summary").findNextSibling("div").find("tbody")
 
-        Controllers = int(self.getText(new_scan_soup_summary.find("td", string="Controllers").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Controllers").find_next_sibling("td"))) - self.no_of_controllers
-        Errors = int(self.getText(new_scan_soup_summary.find("td", string="Errors").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Errors").find_next_sibling("td"))) - self.no_of_errors
-        Ignored_Warnings = int(self.getText(new_scan_soup_summary.find("td", string="Ignored Warnings").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Ignored Warnings").find_next_sibling("td"))) - self.no_of_ignored_warnings
-        Models = int(self.getText(new_scan_soup_summary.find("td", string="Models").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Models").find_next_sibling("td"))) - self.no_of_models
-        Security_Warnings = int(self.getText(new_scan_soup_summary.find("td", string="Security Warnings").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Security Warnings").find_next_sibling("td"))) - self.no_of_security_warnings
-        Templates = int(self.getText(new_scan_soup_summary.find("td", string="Templates").find_next_sibling(
-            "td"))) - int(self.getText(old_scan_soup_summary.find("td", string="Templates").find_next_sibling("td"))) - self.no_of_templates
+        fixed_controllers = int(self.getText(old_scan_soup_summary.find("td", string="Controllers").find_next_sibling("td"))) - int(self.getText(new_scan_soup_summary.find("td", string="Controllers").find_next_sibling("td"))) - self.no_of_controllers
+        fixed_errors = int(self.getText(old_scan_soup_summary.find("td", string="Errors").find_next_sibling("td"))) - int(self.getText(new_scan_soup_summary.find("td", string="Errors").find_next_sibling("td"))) - self.no_of_errors
+        fixed_ignored_warnings = int(self.getText(old_scan_soup_summary.find("td", string="Ignored Warnings").find_next_sibling("td"))) - int(self.getText(new_scan_soup_summary.find("td", string="Ignored Warnings").find_next_sibling("td"))) - self.no_of_ignored_warnings
+        fixed_models = int(self.getText(old_scan_soup_summary.find("td", string="Models").find_next_sibling("td"))) - int(self.getText(new_scan_soup_summary.find("td", string="Models").find_next_sibling("td"))) - self.no_of_models
+        fixed_security_warnings = int(self.getText(old_scan_soup_summary.find("td", string="Security Warnings").find_next_sibling("td"))) - int(self.getText(new_scan_soup_summary.find("td", string="Security Warnings").find_next_sibling("td"))) - self.no_of_security_warnings
+        fixed_templates = int(self.getText(old_scan_soup_summary.find("td", string="Templates").find_next_sibling("td"))) - int(self.getText(new_scan_soup_summary.find("td", string="Templates").find_next_sibling("td"))) - self.no_of_templates
 
-        self.summary_table_soup.find("td", string="Controllers").find_next_sibling("td").contents[0].replace_with(str(Controllers))
+        self.summary_table_soup.find("td", string="Controllers").find_next_sibling("td").contents[0].replace_with(str(abs(fixed_controllers)))
         self.summary_table_soup.find("td", string="Controllers").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_controllers))
 
-        self.summary_table_soup.find("td", string="Errors").find_next_sibling("td").contents[0].replace_with(str(Errors))
+        self.summary_table_soup.find("td", string="Errors").find_next_sibling("td").contents[0].replace_with(str(abs(fixed_errors)))
         self.summary_table_soup.find("td", string="Errors").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_errors))
 
-        self.summary_table_soup.find("td", string="Ignored Warnings").find_next_sibling("td").contents[0].replace_with(str(Ignored_Warnings))
+        self.summary_table_soup.find("td", string="Ignored Warnings").find_next_sibling("td").contents[0].replace_with(str(abs(fixed_ignored_warnings)))
         self.summary_table_soup.find("td", string="Ignored Warnings").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_ignored_warnings))
 
-        self.summary_table_soup.find("td", string="Models").find_next_sibling("td").contents[0].replace_with(str(Models))
+        self.summary_table_soup.find("td", string="Models").find_next_sibling("td").contents[0].replace_with(str(abs(fixed_models)))
         self.summary_table_soup.find("td", string="Models").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_models))
 
-        self.summary_table_soup.find("td", string="Security Warnings").find_next_sibling("td").contents[0].replace_with(str(Security_Warnings))
+        self.summary_table_soup.find("td", string="Security Warnings").find_next_sibling("td").contents[0].replace_with(str(abs(fixed_security_warnings)))
         self.summary_table_soup.find("td", string="Security Warnings").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_security_warnings))
 
-        self.summary_table_soup.find("td", string="Templates").find_next_sibling("td").contents[0].replace_with(str(Templates))
+        self.summary_table_soup.find("td", string="Templates").find_next_sibling("td").contents[0].replace_with(str(abs(fixed_templates)))
         self.summary_table_soup.find("td", string="Templates").find_next_sibling("td").find_next_sibling("td").contents[0].replace_with(str(self.no_of_templates))
 
     # CONTROLLER
