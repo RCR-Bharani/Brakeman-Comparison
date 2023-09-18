@@ -1,4 +1,5 @@
 __pycache__
 templates/*
 .vscode
-virtual_environment
+.idea
+virtual_environment/*
