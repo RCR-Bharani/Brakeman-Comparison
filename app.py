@@ -7,9 +7,9 @@ from flask import Flask, render_template, render_template_string, request, redir
 import os
 from brakeman_comparator import Comparator
 
-app = Flask(__name__, template_folder="/home/rently/PycharmProjects/Brakeman-Comparison/templates/")
+app = Flask(__name__, template_folder= os.getcwd() + "/templates/")
 app.config['EXPLAIN_TEMPLATE_LOADING'] = True
-app.config['UPLOAD_FOLDER'] = '/home/rently/Downloads/new/'
+app.config['UPLOAD_FOLDER'] = os.getcwd() + '/downloaded_files/'
 
 @app.route('/')
 def index():
@@ -27,7 +27,7 @@ def upload_file():
     file1_before_deployment = os.path.join(app.config['UPLOAD_FOLDER'], filename1)
     file2_after_deployment = os.path.join(app.config['UPLOAD_FOLDER'], filename2)
 
-    template_folder = "/home/rently/PycharmProjects/Brakeman-Comparison/templates/"
+    template_folder = os.getcwd() + "/templates/"
     print("File 1 Name: {}\nFile 2 Name: {}".format(file1_before_deployment, file2_after_deployment))
 
     Obj = Comparator(file1_before_deployment, file2_after_deployment)
