@@ -3,4 +3,3 @@ templates/*
 .vscode
 .idea
 virtual_environment/*
-downloaded_files/*
